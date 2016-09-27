@@ -1,0 +1,537 @@
+---
+swagger: "2.0"
+info:
+  description: "registry for sales information of customers"
+  version: "0.0.1"
+  title: "platform.sale-registry"
+  contact:
+    name: "James Lawson"
+    url: "https://github.com/ComparetheMarket/platform.sale-registry"
+    email: "james.lawson@comparethemarket.com"
+host: "localhost:3000"
+basePath: "/"
+schemes:
+- "http"
+- "https"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+paths:
+  /private/ping:
+    get:
+      tags:
+      - "default_controller"
+      description: "Returns a `pong` message for system health checking"
+      operationId: "controllers.default_controller.ping"
+      parameters: []
+      responses:
+        200:
+          description: "Successful response"
+          schema:
+            $ref: "#/definitions/PongModel"
+    x-swagger-router-controller: "healthCheck"
+    x-private: true
+  /sale:
+    post:
+      tags:
+      - "default_controller"
+      description: "takes a sale and stores it"
+      operationId: "controllers.default_controller.store_sale"
+      parameters:
+      - in: "body"
+        name: "salePayload"
+        description: "the sale that is required to be stored"
+        required: true
+        schema:
+          $ref: "#/definitions/SaleModel"
+      - name: "ctm-visitor-id"
+        in: "header"
+        description: "the visitor id"
+        required: true
+        type: "string"
+      - name: "ctm-session-id"
+        in: "header"
+        description: "the session id"
+        required: true
+        type: "string"
+      - name: "ctm-correlation-id"
+        in: "header"
+        description: "a correlation id"
+        required: false
+        type: "string"
+      - name: "ctm-causation-id"
+        in: "header"
+        description: "the causation id"
+        required: false
+        type: "string"
+      responses:
+        201:
+          description: "Success"
+        400:
+          description: "Bad Request"
+        401:
+          description: "Unauthorized"
+        default:
+          description: "Unexpected Error"
+      security:
+      - bearer:
+        - "saleregistry"
+    x-swagger-router-controller: "sales"
+  /sale/{saleId}:
+    delete:
+      tags:
+      - "default_controller"
+      description: "deletes a sale"
+      operationId: "controllers.default_controller.delete_sale"
+      parameters:
+      - name: "saleId"
+        in: "path"
+        description: "the id of the sale that is to be deleted"
+        required: true
+        type: "string"
+      - name: "ctm-visitor-id"
+        in: "header"
+        description: "the visitor id"
+        required: true
+        type: "string"
+      - name: "ctm-session-id"
+        in: "header"
+        description: "the session id"
+        required: true
+        type: "string"
+      - name: "ctm-correlation-id"
+        in: "header"
+        description: "a correlation id"
+        required: false
+        type: "string"
+      - name: "ctm-causation-id"
+        in: "header"
+        description: "the causation id"
+        required: false
+        type: "string"
+      responses:
+        200:
+          description: "success"
+        400:
+          description: "Bad Request"
+        401:
+          description: "Unauthorized"
+        404:
+          description: "Not Found"
+        default:
+          description: "Unexpected Error"
+      security:
+      - bearer:
+        - "saleregistry"
+    x-swagger-router-controller: "sales"
+  /sales:
+    post:
+      tags:
+      - "default_controller"
+      description: "takes a batch of sales and stores them"
+      operationId: "controllers.default_controller.store_sales"
+      parameters:
+      - in: "body"
+        name: "salesPayload"
+        description: "an array of sales that are required to be stored"
+        required: true
+        schema:
+          $ref: "#/definitions/SalesModel"
+      - name: "ctm-visitor-id"
+        in: "header"
+        description: "the visitor id"
+        required: true
+        type: "string"
+      - name: "ctm-session-id"
+        in: "header"
+        description: "the session id"
+        required: true
+        type: "string"
+      - name: "ctm-correlation-id"
+        in: "header"
+        description: "a correlation id"
+        required: false
+        type: "string"
+      - name: "ctm-causation-id"
+        in: "header"
+        description: "the causation id"
+        required: false
+        type: "string"
+      responses:
+        201:
+          description: "Success"
+        400:
+          description: "Bad Request"
+        401:
+          description: "Unauthorized"
+        default:
+          description: "Unexpected Error"
+      security:
+      - bearer:
+        - "saleregistry"
+    x-swagger-router-controller: "sales"
+  /sales/accountId/{accountId}:
+    get:
+      tags:
+      - "default_controller"
+      description: "Returns the sales associated with the given accountId"
+      operationId: "controllers.default_controller.sales_by_account_id"
+      parameters:
+      - name: "accountId"
+        in: "path"
+        description: "the accountId of a customer"
+        required: true
+        type: "string"
+      - name: "productCode"
+        in: "query"
+        description: "the product that has been sold"
+        required: false
+        type: "string"
+      - name: "ctm-visitor-id"
+        in: "header"
+        description: "the visitor id"
+        required: true
+        type: "string"
+      - name: "ctm-session-id"
+        in: "header"
+        description: "the session id"
+        required: true
+        type: "string"
+      - name: "ctm-correlation-id"
+        in: "header"
+        description: "a correlation id"
+        required: false
+        type: "string"
+      - name: "ctm-causation-id"
+        in: "header"
+        description: "the causation id"
+        required: false
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/SalesModel"
+        400:
+          description: "Bad Request"
+        401:
+          description: "Unauthorised"
+        404:
+          description: "No Sales Found"
+        default:
+          description: "Unexpected Error"
+      security:
+      - bearer:
+        - "saleregistry"
+    x-swagger-router-controller: "sales"
+  /sales/email/{email}:
+    get:
+      tags:
+      - "default_controller"
+      description: "Returns the sales associated with the given email"
+      operationId: "controllers.default_controller.sales_by_email"
+      parameters:
+      - name: "email"
+        in: "path"
+        description: "the email address of a customer"
+        required: true
+        type: "string"
+      - name: "productCode"
+        in: "query"
+        description: "the product that has been sold"
+        required: false
+        type: "string"
+      - name: "ctm-visitor-id"
+        in: "header"
+        description: "the visitor id"
+        required: true
+        type: "string"
+      - name: "ctm-session-id"
+        in: "header"
+        description: "the session id"
+        required: true
+        type: "string"
+      - name: "ctm-correlation-id"
+        in: "header"
+        description: "a correlation id"
+        required: false
+        type: "string"
+      - name: "ctm-causation-id"
+        in: "header"
+        description: "the causation id"
+        required: false
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/SalesModel"
+        400:
+          description: "Bad Request"
+        401:
+          description: "Unauthorised"
+        404:
+          description: "No Sales Found"
+        default:
+          description: "Unexpected Error"
+      security:
+      - bearer:
+        - "saleregistry"
+    x-swagger-router-controller: "sales"
+  /sales/enquiryId/{enquiryId}:
+    get:
+      tags:
+      - "default_controller"
+      description: "Returns the sales associated with the given enquiryId"
+      operationId: "controllers.default_controller.sales_by_enquiry_id"
+      parameters:
+      - name: "enquiryId"
+        in: "path"
+        description: "the enquiryId used to generate a sale"
+        required: true
+        type: "string"
+      - name: "ctm-visitor-id"
+        in: "header"
+        description: "the visitor id"
+        required: true
+        type: "string"
+      - name: "ctm-session-id"
+        in: "header"
+        description: "the session id"
+        required: true
+        type: "string"
+      - name: "ctm-correlation-id"
+        in: "header"
+        description: "a correlation id"
+        required: false
+        type: "string"
+      - name: "ctm-causation-id"
+        in: "header"
+        description: "the causation id"
+        required: false
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/SalesByEnquiryResponse"
+        400:
+          description: "Bad Request"
+        401:
+          description: "Unauthorised"
+        404:
+          description: "No Sales Found"
+        default:
+          description: "Unexpected Error"
+      security:
+      - bearer:
+        - "saleregistry"
+    x-swagger-router-controller: "sales"
+  /swagger:
+    x-swagger-pipe: "swagger_raw"
+securityDefinitions:
+  bearer:
+    type: "oauth2"
+    authorizationUrl: "https://signin.comparethemarket.com/connect/authorize"
+    tokenUrl: "https://signin.comparethemarket.com/connect/token"
+    flow: "accessCode"
+    scopes:
+      saleregistry: "sale-registry bearer scope"
+definitions:
+  PersonModel:
+    type: "object"
+    required:
+    - "email"
+    properties:
+      accountId:
+        type: "string"
+      email:
+        type: "string"
+      title:
+        type: "string"
+      firstName:
+        type: "string"
+      lastName:
+        type: "string"
+      dateOfBirth:
+        type: "string"
+        format: "date-time"
+    description: "this is the format of a person"
+  ClaimModel:
+    type: "object"
+    properties:
+      claimId:
+        type: "string"
+      claimOrder:
+        type: "array"
+        items:
+          type: "string"
+    description: "this is the format of a claim"
+  SaleStatusHistoryModel:
+    type: "object"
+    required:
+    - "assignedAt"
+    - "assignedStatus"
+    properties:
+      assignedStatus:
+        type: "string"
+      assignedAt:
+        type: "string"
+        format: "date-time"
+  SaleAssociatedEnquiriesModel:
+    type: "object"
+    required:
+    - "confidence"
+    - "enquiryId"
+    properties:
+      enquiryId:
+        type: "string"
+      confidence:
+        type: "number"
+      addressHouseNumber:
+        type: "string"
+      addressPostCode:
+        type: "string"
+  SaleModel:
+    type: "object"
+    required:
+    - "productCode"
+    - "saleId"
+    - "status"
+    - "statusHistory"
+    properties:
+      saleId:
+        type: "string"
+      saleSourceFile:
+        type: "string"
+      transactionId:
+        type: "string"
+      transactionDate:
+        type: "string"
+        format: "date-time"
+      policyNumber:
+        type: "string"
+      productCode:
+        type: "string"
+      productVersion:
+        type: "string"
+      brandCode:
+        type: "string"
+      brandName:
+        type: "string"
+      commencementDate:
+        type: "string"
+        format: "date-time"
+      duration:
+        type: "string"
+      status:
+        type: "string"
+        enum:
+        - "provisional"
+        - "confirmed"
+        - "cancelled"
+        - "void"
+      statusHistory:
+        type: "array"
+        items:
+          $ref: "#/definitions/SaleStatusHistoryModel"
+      person:
+        $ref: "#/definitions/PersonModel"
+      claim:
+        $ref: "#/definitions/ClaimModel"
+      associatedEnquiries:
+        type: "array"
+        items:
+          $ref: "#/definitions/SaleAssociatedEnquiriesModel"
+    description: "this is the format of a sale object"
+  SalesModel:
+    type: "array"
+    items:
+      $ref: "#/definitions/SaleModel"
+  SaleByEnquiryModel:
+    type: "object"
+    required:
+    - "confidence"
+    - "sale"
+    properties:
+      sale:
+        $ref: "#/definitions/SaleModel"
+      confidence:
+        type: "number"
+  SalesByEnquiryResponse:
+    type: "array"
+    items:
+      $ref: "#/definitions/SaleByEnquiryModel"
+  PongModel:
+    type: "string"
+    description: "The result of a private ping healthcheck request"
+parameters:
+  accountId:
+    name: "accountId"
+    in: "path"
+    description: "the accountId of a customer"
+    required: true
+    type: "string"
+  email:
+    name: "email"
+    in: "path"
+    description: "the email address of a customer"
+    required: true
+    type: "string"
+  enquiryId:
+    name: "enquiryId"
+    in: "path"
+    description: "the enquiryId used to generate a sale"
+    required: true
+    type: "string"
+  salePayload:
+    in: "body"
+    name: "salePayload"
+    description: "the sale that is required to be stored"
+    required: true
+    schema:
+      $ref: "#/definitions/SaleModel"
+  saleId:
+    name: "saleId"
+    in: "path"
+    description: "the id of the sale that is to be deleted"
+    required: true
+    type: "string"
+  salesPayload:
+    in: "body"
+    name: "salesPayload"
+    description: "an array of sales that are required to be stored"
+    required: true
+    schema:
+      $ref: "#/definitions/SalesModel"
+  productCode:
+    name: "productCode"
+    in: "query"
+    description: "the product that has been sold"
+    required: false
+    type: "string"
+  ctm-visitor-id:
+    name: "ctm-visitor-id"
+    in: "header"
+    description: "the visitor id"
+    required: true
+    type: "string"
+  ctm-session-id:
+    name: "ctm-session-id"
+    in: "header"
+    description: "the session id"
+    required: true
+    type: "string"
+  ctm-correlation-id:
+    name: "ctm-correlation-id"
+    in: "header"
+    description: "a correlation id"
+    required: false
+    type: "string"
+  ctm-causation-id:
+    name: "ctm-causation-id"
+    in: "header"
+    description: "the causation id"
+    required: false
+    type: "string"
